@@ -1,4 +1,4 @@
-const seats = [
+export const seats = [
     {
         id: 1, 
         code: 'A1',

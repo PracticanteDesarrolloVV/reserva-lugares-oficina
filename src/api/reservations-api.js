@@ -1,3 +1,5 @@
+import {seats} from "./seats-api.js";
+
 const reservation = {
     id : 10,
     seatId : 2,
@@ -6,20 +8,31 @@ const reservation = {
     userEmail: 'usuario@verdevalle.com'
 }
 
+
 export const getMyReservations = async () => {
-    return reservation;
+    return [reservation];
 };
 export const createReservation = async ({seatId, date}) => {
+    const seat = seats.find(s => s.id === seatId);
+    const seatCode = seat ? seat.code : null;
     return {
+        id: 99,
         seatId,
+        seatCode,
         date,
+        userEmail: 'usuario@verdevalle.com'
     }; 
 };
 export const updateReservation = async (reservationId, {seatId, date}) => {
+    const seat = seats.find(s => s.id === seatId);
+    const seatCode = seat ? seat.code : null;
     return {
-        reservationId,
+        id: reservationId,
         seatId,
+        seatCode,
         date,
+        userEmail: 'usuario@verdevalle.com'
+
     }; 
 };
 export const deleteReservation = async (reservationId) => {
