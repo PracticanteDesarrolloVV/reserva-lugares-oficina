@@ -142,6 +142,6 @@ export const seats = [
 
 ];
 
-export const getSeatsByDate = async (date) => {
-    return seats; 
-}; 
+export const getSeatsByDate = async (_date) => {
+    return seats;
+};

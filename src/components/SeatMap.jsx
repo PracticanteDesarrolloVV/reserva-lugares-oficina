@@ -16,7 +16,7 @@ function SeatMap({seats, mode, selectedSeatId, onSelectSeat}){
                 let styleTokens; 
 
                 if (isHighlighted){
-                    styleTokens = {background: token.colorPrimaryBg, borderColor: token.colorPrimary, color: token.colorPrimary};
+                    styleTokens = {background: token.colorInfoBg, borderColor: token.colorInfo, color: token.colorInfo};
                 } else if (seat.status === 'ocupado'){
                     styleTokens = { background: token.colorBgContainerDisabled, borderColor: token.colorBorderSecondary, color: token.colorTextDisabled};
                 } else {

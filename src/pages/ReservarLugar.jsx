@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DatePicker, Button } from "antd";
+import { DatePicker, Button, Space } from "antd";
 import dayjs from "dayjs";
 import { getSeatsByDate } from "../api/seats-api.js";
 import { createReservation } from "../api/reservations-api.js";
@@ -29,7 +29,7 @@ function ReservarLugar() {
     };
 
     return (
-        <>
+        <Space orientation="vertical" size="large" style={{ display: "flex" }}>
             <DatePicker value={date} onChange={setDate} allowClear={false}/>
 
             <SeatMap
@@ -46,7 +46,7 @@ function ReservarLugar() {
             >
                 Confirmar reserva
             </Button>
-        </>
+        </Space>
     );
 }
 export default ReservarLugar;

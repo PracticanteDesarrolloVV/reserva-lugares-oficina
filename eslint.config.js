@@ -17,5 +17,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Permite parámetros sin usar cuando empiezan con "_" (ej. parámetros
+      // que documentan el contrato de una función pero que un servicio
+      // simulado todavía no necesita leer).
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
 ])

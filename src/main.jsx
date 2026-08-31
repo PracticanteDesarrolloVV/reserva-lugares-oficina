@@ -8,7 +8,10 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ConfigProvider
     theme={{
-      token: {borderRadius: 8},
+      token: {
+        borderRadius: 8,
+        colorPrimary: '#2E7D32',
+      }
         }}>
       <App />
     </ConfigProvider>
