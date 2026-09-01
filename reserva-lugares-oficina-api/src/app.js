@@ -9,6 +9,10 @@ const logger = require('./config/logger');
 const notFoundHandler = require('./middlewares/notFoundHandler');
 const errorHandler = require('./middlewares/errorHandler');
 
+const healthRoutes = require('./routes/health.routes');
+const seatsRoutes = require('./routes/seats.routes');
+const reservationsRoutes = require('./routes/reservations.routes');
+
 const app = express();
 
 // Parseo de body JSON
@@ -21,12 +25,10 @@ app.use(cors({ origin: process.env.ORIGENES_PERMITIDOS.split(',') }));
 // Log de cada request HTTP, canalizado a winston
 app.use(morgan('combined', { stream: { write: (msg) => logger.info(msg.trim()) } }));
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ success: true, data: { status: 'ok' } });
-});
-
-// Rutas de negocio se registran aquí (src/routes/) conforme se vayan agregando
+// Rutas
+app.use(healthRoutes);
+app.use('/api/seats', seatsRoutes);
+app.use('/api/reservations', reservationsRoutes);
 
 // Manejo de ruta no encontrada y de errores centralizado (siempre al final)
 app.use(notFoundHandler);
