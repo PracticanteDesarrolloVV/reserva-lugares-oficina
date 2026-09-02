@@ -1,0 +1,1 @@
+export const MOCK_USER_EMAIL = 'usuario@verdevalle.com';
