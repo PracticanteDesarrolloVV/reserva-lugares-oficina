@@ -1,30 +1,14 @@
-const ROWS = ['A', 'B', 'C', 'D', 'E'];
-const COLUMNS = [1, 2, 3, 4];
-const SEATS = []; 
+const pool = require('../db/connection');
 
-let id = 1;
-ROWS.forEach((rowLetter, rowIndex) => {
-  COLUMNS.forEach((columnNumber) => {
-    const seat = {
-      id: id++,
-      code: `${rowLetter}${columnNumber}`,
-      row: rowIndex + 1,
-      column: columnNumber
-    };
-    SEATS.push(seat);
-  });
-});
-
-const getAllSeats = () => {
-  return [...SEATS];
+const getSeatsGrid = async (date) => {
+  const [rows] = await pool.execute('CALL web_se_seats_bydate(?)', [date]);
+  return rows[0].map((seat) => ({
+    id: seat.id,
+    code: seat.code,
+    row: seat.seat_row,
+    column: seat.seat_column,
+    status: seat.status
+  }));
 };
 
-const getSeatById = (id) => {
-  return SEATS.find(seat => seat.id === id);
-};
-
-const buildSeatsGrid = (reservedSeatIds) => {
-  return SEATS.map(seat => ({ ...seat, status: reservedSeatIds.has(seat.id) ? 'ocupado' : 'disponible' }));
-};
-
-module.exports = { getAllSeats, getSeatById, buildSeatsGrid };
+module.exports = { getSeatsGrid };

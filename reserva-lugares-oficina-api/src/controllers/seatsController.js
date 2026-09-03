@@ -1,7 +1,6 @@
 const seatsService = require('../services/seatsService');
-const reservationsService = require('../services/reservationsService');
 
-const getSeats = (req, res) => {
+const getSeats = async (req, res, next) => {
     const { date } = req.query;
 
     if (!date) {
@@ -10,9 +9,13 @@ const getSeats = (req, res) => {
             error: { code: 'VALIDATION_ERROR', message: 'El parámetro date es requerido' }
         });
     }
-    const reservedSeatIds = reservationsService.getReservedSeatIds(date);
-    const grid = seatsService.buildSeatsGrid(reservedSeatIds);
-    return res.json({ success: true, data: grid });  
+
+    try{
+        const seatsGrid = await seatsService.getSeatsGrid(date);
+        res.json({ success: true, data: seatsGrid });
+    } catch (err) {
+        next(err);
+    }
 };
 
 module.exports = { getSeats };

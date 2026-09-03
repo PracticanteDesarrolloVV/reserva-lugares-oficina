@@ -1,61 +1,63 @@
+const pool = require('../db/connection');
 const seatsService = require('./seatsService');
+const BusinessError = require('../middlewares/businessError');
 
-const RESERVATIONS = [];
-let nextReservationId = 1;
-
-const MOCK_USER_EMAIL = 'usuario@verdevalle.com';
-
-const getReservationsByUserEmail = (userEmail) => {
-    return RESERVATIONS.filter(reservation => reservation.userEmail === userEmail);
+const getReservationsByUserEmail = async (userEmail) => {
+  const [rows] = await pool.execute('CALL web_se_reservations_byuser(?)', [userEmail]);
+  return rows[0].map((r) => ({
+    id: r.id,
+    seatId: r.id_seat,
+    seatCode: r.seat_code,
+    date: r.reservation_date,
+    userEmail: r.user_email
+  }));
 };
 
-const getReservedSeatIds = (date) => {
-    return new Set(RESERVATIONS.filter(reservation => reservation.date === date).map(reservation => reservation.seatId));
-};
-
-
-const getReservationById = (id) => {
-    return RESERVATIONS.find(reservation => reservation.id === id);
-};
-
-
-const createReservation = ({ seatId, date }) => {
-    const seat = seatsService.getSeatById(seatId);
-    const reservation = {
-        id: nextReservationId++,
-        seatId,
-        seatCode: seat ? seat.code : null,
-        date,
-        userEmail: MOCK_USER_EMAIL
-    };
-    RESERVATIONS.push(reservation);
-    return reservation;
-};
-
-const updateReservation = (id, { seatId, date }) => {
-    const reservation = getReservationById(id);
-    if (!reservation) return null;
-    const seat = seatsService.getSeatById(seatId);
-    reservation.seatId = seatId;
-    reservation.seatCode = seat ? seat.code : null;
-    reservation.date = date;
-    return reservation;
-};
-
-const deleteReservation = (id) => {
-    const index = RESERVATIONS.findIndex(reservation => reservation.id === id);
-    if (index === -1) {
-        return false;
+const createReservation = async ({ seatId, date, userEmail }) => {
+  try {
+    const [rows] = await pool.execute('CALL web_in_create_reservation(?, ?, ?)', [seatId, date, userEmail]);
+    const reservationId = rows[0][0].reservation_id;
+    const seat = await seatsService.getSeatsGrid(date);
+    const seatCode = seat.find((s) => s.id === seatId)?.code || null;
+    return { id: reservationId, seatId, seatCode, date, userEmail };
+  } catch (err) {
+    if (err.code === 'ER_SIGNAL_EXCEPTION') {
+      throw new BusinessError(err.sqlMessage);
     }
-    RESERVATIONS.splice(index, 1);
-    return true;
+    throw err;
+  }
+};
+
+const updateReservation = async (id, { seatId, date, userEmail }) => {
+  try {
+    const [rows] = await pool.execute('CALL web_up_update_reservation(?, ?, ?, ?)', [id, seatId, date, userEmail]);
+    const updatedReservationId = rows[0][0].reservation_id;
+    const seat = await seatsService.getSeatsGrid(date);
+    const seatCode = seat.find((s) => s.id === seatId)?.code || null;
+    return { id: updatedReservationId, seatId, seatCode, date, userEmail };
+  } catch (err) {
+    if (err.code === 'ER_SIGNAL_EXCEPTION') {
+      throw new BusinessError(err.sqlMessage);
+    }
+    throw err;
+  }
+};
+
+const deleteReservation = async (id, userEmail) => {
+  try {
+    await pool.execute('CALL web_de_cancel_reservation(?, ?)', [id, userEmail]);
+    return { id };
+  } catch (err) {
+    if (err.code === 'ER_SIGNAL_EXCEPTION') {
+      throw new BusinessError(err.sqlMessage);
+    }
+    throw err;
+  }
 };
 
 module.exports = {
-    getReservationsByUserEmail,
-    getReservedSeatIds,
-    getReservationById,
-    createReservation,
-    updateReservation,
-    deleteReservation,
+  getReservationsByUserEmail,
+  createReservation,
+  updateReservation,
+  deleteReservation,
 };

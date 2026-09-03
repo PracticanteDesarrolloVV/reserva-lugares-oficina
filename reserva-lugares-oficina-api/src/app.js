@@ -6,6 +6,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 const logger = require('./config/logger');
+const authMiddleware = require('./middlewares/authMiddleware');
 const notFoundHandler = require('./middlewares/notFoundHandler');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -27,6 +28,9 @@ app.use(morgan('combined', { stream: { write: (msg) => logger.info(msg.trim()) }
 
 // Rutas
 app.use(healthRoutes);
+
+// Todo lo que cuelgue de /api/ requiere token válido (Actividad 4)
+app.use('/api', authMiddleware);
 app.use('/api/seats', seatsRoutes);
 app.use('/api/reservations', reservationsRoutes);
 
